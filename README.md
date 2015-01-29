@@ -25,3 +25,6 @@ Here you can add in the newly created wallet settings. You'll need to fetch your
 /home/bitcoind/.bitcoind/bitcoind.conf
 /home/auroracoind/.auroracoind/auroracoind.conf
 ```
+
+## Setting up the cron
+todo, cron instutions here...

@@ -8,6 +8,12 @@ cd q2a-coin-bounty-init
 vagrant up
 ```
 
+## Install on VPS
+If you want to try this on a live VPS just execute the init.sh script. Please note you'll need a VPS with at least 40GB storage and about 2GB or ram running Ubuntu 14.04. WARNING: I have not implemented many security features in the install script. Use at your own risk.
+``` 
+source (curl -s https://raw.githubusercontent.com/greatwitenorth/q2a-coin-bounty-init/master/init.sh)
+```
+
 ## Important
 Once the wallets are installed, it will take quite some time for them to download their repsective blockchains and sync with the network. Be patient.
 

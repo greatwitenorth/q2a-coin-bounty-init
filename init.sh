@@ -34,43 +34,54 @@ echo '#### Finished installing AuroraCoin client ####'
 
 
 sudo apt-get -y install php5 php5-common php5-dev php5-mcrypt php5-gmp php5-mysql php5-cli php5-curl
-MYSQLPASS=''
-debconf-set-selections <<< "mysql-server-5.5 mysql-server/root_password password ''"
-debconf-set-selections <<< "mysql-server-5.5 mysql-server/root_password_again password ''"
+
+debconf-set-selections <<< "mysql-server-5.5 mysql-server/root_password password root"
+debconf-set-selections <<< "mysql-server-5.5 mysql-server/root_password_again password root"
 sudo apt-get -y install mysql-server-5.5 apache2
 
 a2enmod rewrite
 sudo php5enmod mcrypt
-sudo php5enmod bcmath
 
-debconf-set-selections <<< "postfix postfix/mailname string $HOSTNAME"
+debconf-set-selections <<< "postfix postfix/mailname string '$HOSTNAME'"
 debconf-set-selections <<< "postfix postfix/main_mailer_type string 'Internet Site'"
 apt-get install -y postfix
 
-service apache2 restart
 service mysql restart
 service postfix restart
 
 echo "#### Downloading Q2A ####"
-mkdir /var/www/html
-cd /var/www/html
+sudo mkdir -p /var/www/q2a/public_html
+sudo chown -R www-data:www-data /var/www/q2a/public_html
+cd /var/www/q2a/public_html
+sudo touch /etc/apache2/sites-available/q2a.conf
+echo "<VirtualHost *:80>
+ServerAdmin webmaster@localhost
+ServerName localhost
+DocumentRoot /var/www/q2a/public_html
+ErrorLog ${APACHE_LOG_DIR}/error.log
+CustomLog ${APACHE_LOG_DIR}/access.log combined
+</VirtualHost>
+" > /etc/apache2/sites-available/q2a.conf
+sudo a2ensite q2a.conf
+service apache2 restart
+
 git clone https://github.com/q2a/question2answer.git .
+
 echo "#### Downloading Coin Bounty plugin ####"
 cd qa-plugin
 git clone https://github.com/Stirling/Coin-Bounty.git coin-bounty
-cd /var/www/html
+cd /var/www/q2a/public_html
 cp qa-config-example.php qa-config.php
+sudo chown www-data:www-data qa-config.php
 
 Q2ADBPASS=`openssl rand -hex 5`
-mysql -u root -p$MYSQLPASS -e 'CREATE DATABASE q2a'
-mysql -u root -p$MYSQLPASS -e "CREATE USER 'q2a'@'localhost' IDENTIFIED BY '$Q2ADBPASS';"
-mysql -u root -p$MYSQLPASS -e "GRANT ALL PRIVILEGES ON q2a.* TO 'q2a'@'localhost';"
-mysql -u root -p$MYSQLPASS -e "FLUSH PRIVILEGES;"
+mysql -u root -proot -e 'CREATE DATABASE q2a'
+mysql -u root -proot -e "CREATE USER 'q2a'@'localhost' IDENTIFIED BY '$Q2ADBPASS';"
+mysql -u root -proot -e "GRANT ALL PRIVILEGES ON q2a.* TO 'q2a'@'localhost';"
+mysql -u root -proot -e "FLUSH PRIVILEGES;"
 
 sed -i "s/your-mysql-username/q2a/" qa-config.php
 sed -i "s/your-mysql-password/$Q2ADBPASS/" qa-config.php
 sed -i "s/your-mysql-db-name/q2a/" qa-config.php
 
 apt-get -y autoremove
-
-#crontab -l | { cat; echo "* * * * * /usr/bin/curl http://127.0.0.1/cron-update-deposit > /dev/null 2>&1"; } | crontab -

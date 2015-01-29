@@ -28,7 +28,7 @@ echo "rpcuser=auroracoinrpc
 rpcpassword=`openssl rand -hex 16`
 server=1" > /home/auroracoind/.AuroraCoin/AuroraCoin.conf
 chown -R auroracoind.auroracoind /home/auroracoind/.AuroraCoin
-su auroracoind -c /usr/bin/auroracoind -daemon
+su auroracoind -c "/usr/bin/auroracoind -daemon"
 sed -i -e '$i \su auroracoind -c "/usr/bin/auroracoind -daemon" &\n' /etc/rc.local
 echo '#### Finished installing AuroraCoin client ####'
 

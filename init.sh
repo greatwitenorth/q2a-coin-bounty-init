@@ -40,6 +40,7 @@ debconf-set-selections <<< "mysql-server-5.5 mysql-server/root_password_again pa
 sudo apt-get -y install mysql-server-5.5 apache2
 
 a2enmod rewrite
+a2enmod ssl
 sudo php5enmod mcrypt
 
 debconf-set-selections <<< "postfix postfix/mailname string '$HOSTNAME'"
@@ -54,12 +55,14 @@ sudo mkdir -p /var/www/q2a/public_html
 sudo chown -R www-data:www-data /var/www/q2a/public_html
 cd /var/www/q2a/public_html
 sudo touch /etc/apache2/sites-available/q2a.conf
-echo "<VirtualHost *:80>
-ServerAdmin webmaster@localhost
+echo "<VirtualHost *:443>
 ServerName localhost
 DocumentRoot /var/www/q2a/public_html
-ErrorLog ${APACHE_LOG_DIR}/error.log
-CustomLog ${APACHE_LOG_DIR}/access.log combined
+ErrorLog /error.log
+CustomLog /access.log combined
+SSLEngine On
+SSLCertificateFile /etc/ssl/certs/ssl-cert-snakeoil.pem
+SSLCertificateKeyFile /etc/ssl/private/ssl-cert-snakeoil.key
 </VirtualHost>
 " > /etc/apache2/sites-available/q2a.conf
 sudo a2ensite q2a.conf
